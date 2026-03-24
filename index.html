@@ -1,0 +1,48 @@
+# To run this code you need to install the following dependencies:
+# pip install google-genai
+
+import os
+from google import genai
+from google.genai import types
+
+
+def generate():
+    client = genai.Client(
+        api_key=os.environ.get("GEMINI_API_KEY"),
+    )
+
+    model = "gemini-3-flash-preview"
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text="""INSERT_INPUT_HERE"""),
+            ],
+        ),
+    ]
+    tools = [
+        types.Tool(googleSearch=types.GoogleSearch(
+        )),
+    ]
+    generate_content_config = types.GenerateContentConfig(
+        temperature=0.7,
+        thinking_config=types.ThinkingConfig(
+            thinking_level="HIGH",
+        ),
+        tools=tools,
+        system_instruction=[
+            types.Part.from_text(text="""\"너는 세계 최고의 풀스택 개발자이자 자동화 전문가야. 내가 '바이브(의도)'만 전달하면, 너는 그것을 구현하기 위한 최적의 코드(Python, PowerShell 등)를 작성하고 상세히 설명해줘. \""""),
+        ],
+    )
+
+    for chunk in client.models.generate_content_stream(
+        model=model,
+        contents=contents,
+        config=generate_content_config,
+    ):
+        print(chunk.text, end="")
+
+if __name__ == "__main__":
+    generate()
+
+
