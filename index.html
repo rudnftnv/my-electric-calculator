@@ -3,100 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스마트 전기 요금 계산기</title>
+    <title>전기 전문가용 통합 계산기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Pretendard', sans-serif; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+<body class="bg-slate-100 p-4 md:p-8">
 
-    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">⚡ 전기 요금 계산기</h1>
+    <div class="max-w-2xl mx-auto space-y-8">
         
-        <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">이번 달 사용량 (kWh)</label>
-            <input type="number" id="usageInput" placeholder="예: 350" 
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-lg">
+        <!-- SECTION 1: 전기 요금 계산기 -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200">
+            <div class="bg-blue-600 p-6">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <span>⚡</span> 이번 달 전기 요금 계산기
+                </h2>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-lg font-semibold text-gray-700 mb-2">당월 사용량 (kWh)</label>
+                    <input type="number" id="usageInput" placeholder="예: 350" 
+                        class="w-full px-5 py-4 text-2xl border-2 border-blue-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                </div>
+
+                <button onclick="calculateBill()" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold py-5 rounded-xl transition-all active:scale-95 shadow-lg">
+                    요금 계산 실행
+                </button>
+
+                <div id="billResult" class="hidden bg-blue-50 rounded-2xl p-6 space-y-4 border border-blue-100">
+                    <div class="flex justify-between text-gray-600 text-lg">
+                        <span>기본요금 / 전력량요금</span>
+                        <span id="baseUsageFee" class="font-medium">0원</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 text-lg">
+                        <span>기후/연료비 조정액</span>
+                        <span id="extraFee" class="font-medium">0원</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-4 border-t border-blue-200">
+                        <span class="text-xl font-bold text-gray-800">최종 청구 금액</span>
+                        <span id="totalBill" class="text-3xl font-extrabold text-blue-600">0원</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <button onclick="calculate()" 
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-lg">
-            요금 계산하기
-        </button>
+        <!-- SECTION 2: OCR 정정치 계산기 -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200">
+            <div class="bg-emerald-600 p-6">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <span>🛠️</span> OCR(과전류계전기) 정정치 계산기
+                </h2>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 계약전력 -->
+                    <div>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">계약전력 (kW)</label>
+                        <input type="number" id="contractPower" placeholder="예: 500" 
+                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 rounded-xl focus:border-emerald-500 outline-none">
+                    </div>
+                    <!-- 정격전압 -->
+                    <div>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">정격전압 (V)</label>
+                        <select id="voltage" onchange="toggleVoltageInput()"
+                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 rounded-xl focus:border-emerald-500 outline-none bg-white">
+                            <option value="22900">22,900 V</option>
+                            <option value="6600">6,600 V</option>
+                            <option value="3300">3,300 V</option>
+                            <option value="380">380 V</option>
+                            <option value="custom">직접 입력</option>
+                        </select>
+                        <input type="number" id="customVoltage" placeholder="전압 직접 입력" 
+                            class="hidden w-full mt-2 px-5 py-4 text-xl border-2 border-orange-200 rounded-xl outline-none">
+                    </div>
+                    <!-- CT비 -->
+                    <div>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">CT비 (1차측)</label>
+                        <input type="number" id="ctPrimary" placeholder="예: 100" 
+                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 rounded-xl focus:border-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">CT비 (2차측)</label>
+                        <input type="number" id="ctSecondary" value="5" 
+                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 rounded-xl focus:border-emerald-500 outline-none">
+                    </div>
+                    <!-- 과부하 계수 -->
+                    <div class="md:col-span-2">
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">과부하 계수 (%)</label>
+                        <input type="number" id="overloadFactor" value="150" 
+                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 rounded-xl focus:border-emerald-500 outline-none">
+                    </div>
+                </div>
 
-        <div id="resultArea" class="mt-8 hidden space-y-3 border-t pt-6">
-            <div class="flex justify-between text-gray-600">
-                <span>기본요금</span>
-                <span id="baseFee">0원</span>
-            </div>
-            <div class="flex justify-between text-gray-600">
-                <span>전력량요금 (누진제 적용)</span>
-                <span id="usageFee">0원</span>
-            </div>
-            <div class="flex justify-between text-gray-600">
-                <span>기후환경요금 / 연료비조정</span>
-                <span id="extraFee">0원</span>
-            </div>
-            <hr>
-            <div class="flex justify-between text-gray-600 text-sm">
-                <span>부가세 (10%) / 전력기금 (3.7%)</span>
-                <span id="taxFee">0원</span>
-            </div>
-            <div class="flex justify-between items-center mt-4">
-                <span class="text-xl font-bold text-gray-800">최종 예상 금액</span>
-                <span id="totalFee" class="text-2xl font-extrabold text-blue-600">0원</span>
+                <button onclick="calculateOCR()" 
+                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xl font-bold py-5 rounded-xl transition-all active:scale-95 shadow-lg">
+                    OCR 정정치 계산 실행
+                </button>
+
+                <div id="ocrResult" class="hidden bg-emerald-50 rounded-2xl p-6 space-y-4 border border-emerald-100">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 text-lg">계산된 부하전류 (I)</span>
+                        <span id="loadCurrent" class="text-2xl font-bold text-gray-800">0.00 A</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-4 border-t border-emerald-200">
+                        <span class="text-xl font-bold text-gray-800">권장 OCR Tap 설정치</span>
+                        <span id="ocrTap" class="text-3xl font-extrabold text-emerald-600">0.00 A</span>
+                    </div>
+                    <p class="text-sm text-emerald-700 text-center mt-2 font-medium">※ 실제 설정 시 가장 가까운 상위 탭을 선택하십시오.</p>
+                </div>
             </div>
         </div>
+
+        <p class="text-center text-gray-400 text-sm pb-10">
+            Designed by World-Class Fullstack Automation Expert
+        </p>
     </div>
 
     <script>
-        function calculate() {
+        // 전압 직접 입력 필드 토글
+        function toggleVoltageInput() {
+            const select = document.getElementById('voltage');
+            const customInput = document.getElementById('customVoltage');
+            customInput.classList.toggle('hidden', select.value !== 'custom');
+        }
+
+        // 1. 전기 요금 계산 로직
+        function calculateBill() {
             const usage = parseFloat(document.getElementById('usageInput').value);
-            if (isNaN(usage) || usage < 0) {
-                alert("올바른 사용량을 입력해주세요.");
+            if (!usage || usage < 0) { alert("사용량을 입력해주세요."); return; }
+
+            let baseFee = 0, usageFee = 0;
+            if (usage <= 200) { baseFee = 910; usageFee = usage * 120.0; }
+            else if (usage <= 400) { baseFee = 1600; usageFee = (200 * 120.0) + ((usage - 200) * 214.6); }
+            else { baseFee = 7300; usageFee = (200 * 120.0) + (200 * 214.6) + ((usage - 400) * 307.3); }
+
+            const climateFee = usage * 9;
+            const fuelAdjFee = usage * 5;
+            const supplyPrice = baseFee + usageFee + climateFee + fuelAdjFee;
+            const vat = Math.round(supplyPrice * 0.1);
+            const fund = Math.floor(supplyPrice * 0.037 / 10) * 10;
+            const total = Math.floor((supplyPrice + vat + fund) / 10) * 10;
+
+            document.getElementById('billResult').classList.remove('hidden');
+            document.getElementById('baseUsageFee').innerText = (baseFee + Math.round(usageFee)).toLocaleString() + '원';
+            document.getElementById('extraFee').innerText = (climateFee + fuelAdjFee).toLocaleString() + '원';
+            document.getElementById('totalBill').innerText = total.toLocaleString() + '원';
+        }
+
+        // 2. OCR 정정치 계산 로직
+        function calculateOCR() {
+            const P = parseFloat(document.getElementById('contractPower').value);
+            const V_select = document.getElementById('voltage').value;
+            const V = V_select === 'custom' ? parseFloat(document.getElementById('customVoltage').value) : parseFloat(V_select);
+            const ctPri = parseFloat(document.getElementById('ctPrimary').value);
+            const ctSec = parseFloat(document.getElementById('ctSecondary').value);
+            const factor = parseFloat(document.getElementById('overloadFactor').value) / 100;
+
+            if (!P || !V || !ctPri || !ctSec) {
+                alert("모든 항목을 정확히 입력해주세요.");
                 return;
             }
 
-            // 1. 주택용 저압 요금표 (2024년 기준 상시 기준)
-            let baseFee = 0; // 기본요금
-            let usageFee = 0; // 전력량요금
+            // 부하전류 (I) = P / (root(3) * V) -> P가 kW이므로 1000 곱함
+            const loadCurrent = (P * 1000) / (Math.sqrt(3) * V);
             
-            // 누진제 계산 (3단계)
-            if (usage <= 200) {
-                baseFee = 910;
-                usageFee = usage * 120.0;
-            } else if (usage <= 400) {
-                baseFee = 1600;
-                usageFee = (200 * 120.0) + ((usage - 200) * 214.6);
-            } else {
-                baseFee = 7300;
-                usageFee = (200 * 120.0) + (200 * 214.6) + ((usage - 400) * 307.3);
-            }
+            // CT 2차측 전류 = 부하전류 * (CT 2차 / CT 1차)
+            const ctSecondaryCurrent = loadCurrent * (ctSec / ctPri);
+            
+            // OCR Tap = CT 2차측 전류 * 과부하 계수
+            const ocrTap = ctSecondaryCurrent * factor;
 
-            // 2. 기타 요금 (기후환경 9원/kWh, 연료비조정 +5원/kWh 가정)
-            const climateFee = usage * 9;
-            const fuelAdjFee = usage * 5;
-            const extraFee = climateFee + fuelAdjFee;
-
-            // 3. 공급가액 합계
-            const supplyPrice = baseFee + usageFee + extraFee;
-
-            // 4. 부가세 (10%) 및 전력산업기반기금 (3.7%)
-            const vat = Math.round(supplyPrice * 0.1);
-            const fund = Math.floor(supplyPrice * 0.037 / 10) * 10; // 10원 미만 절사
-
-            // 5. 최종 합계 (원단위 절사)
-            const total = Math.floor((supplyPrice + vat + fund) / 10) * 10;
-
-            // 결과 화면 업데이트
-            document.getElementById('resultArea').classList.remove('hidden');
-            document.getElementById('baseFee').innerText = baseFee.toLocaleString() + '원';
-            document.getElementById('usageFee').innerText = Math.round(usageFee).toLocaleString() + '원';
-            document.getElementById('extraFee').innerText = extraFee.toLocaleString() + '원';
-            document.getElementById('taxFee').innerText = (vat + fund).toLocaleString() + '원';
-            document.getElementById('totalFee').innerText = total.toLocaleString() + '원';
+            document.getElementById('ocrResult').classList.remove('hidden');
+            document.getElementById('loadCurrent').innerText = loadCurrent.toFixed(2) + ' A';
+            document.getElementById('ocrTap').innerText = ocrTap.toFixed(2) + ' A';
         }
     </script>
 </body>
