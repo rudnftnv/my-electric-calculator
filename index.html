@@ -1,48 +1,103 @@
-# To run this code you need to install the following dependencies:
-# pip install google-genai
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스마트 전기 요금 계산기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
 
-import os
-from google import genai
-from google.genai import types
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">⚡ 전기 요금 계산기</h1>
+        
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">이번 달 사용량 (kWh)</label>
+            <input type="number" id="usageInput" placeholder="예: 350" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-lg">
+        </div>
 
+        <button onclick="calculate()" 
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-lg">
+            요금 계산하기
+        </button>
 
-def generate():
-    client = genai.Client(
-        api_key=os.environ.get("GEMINI_API_KEY"),
-    )
+        <div id="resultArea" class="mt-8 hidden space-y-3 border-t pt-6">
+            <div class="flex justify-between text-gray-600">
+                <span>기본요금</span>
+                <span id="baseFee">0원</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+                <span>전력량요금 (누진제 적용)</span>
+                <span id="usageFee">0원</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+                <span>기후환경요금 / 연료비조정</span>
+                <span id="extraFee">0원</span>
+            </div>
+            <hr>
+            <div class="flex justify-between text-gray-600 text-sm">
+                <span>부가세 (10%) / 전력기금 (3.7%)</span>
+                <span id="taxFee">0원</span>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+                <span class="text-xl font-bold text-gray-800">최종 예상 금액</span>
+                <span id="totalFee" class="text-2xl font-extrabold text-blue-600">0원</span>
+            </div>
+        </div>
+    </div>
 
-    model = "gemini-3-flash-preview"
-    contents = [
-        types.Content(
-            role="user",
-            parts=[
-                types.Part.from_text(text="""INSERT_INPUT_HERE"""),
-            ],
-        ),
-    ]
-    tools = [
-        types.Tool(googleSearch=types.GoogleSearch(
-        )),
-    ]
-    generate_content_config = types.GenerateContentConfig(
-        temperature=0.7,
-        thinking_config=types.ThinkingConfig(
-            thinking_level="HIGH",
-        ),
-        tools=tools,
-        system_instruction=[
-            types.Part.from_text(text="""\"너는 세계 최고의 풀스택 개발자이자 자동화 전문가야. 내가 '바이브(의도)'만 전달하면, 너는 그것을 구현하기 위한 최적의 코드(Python, PowerShell 등)를 작성하고 상세히 설명해줘. \""""),
-        ],
-    )
+    <script>
+        function calculate() {
+            const usage = parseFloat(document.getElementById('usageInput').value);
+            if (isNaN(usage) || usage < 0) {
+                alert("올바른 사용량을 입력해주세요.");
+                return;
+            }
 
-    for chunk in client.models.generate_content_stream(
-        model=model,
-        contents=contents,
-        config=generate_content_config,
-    ):
-        print(chunk.text, end="")
+            // 1. 주택용 저압 요금표 (2024년 기준 상시 기준)
+            let baseFee = 0; // 기본요금
+            let usageFee = 0; // 전력량요금
+            
+            // 누진제 계산 (3단계)
+            if (usage <= 200) {
+                baseFee = 910;
+                usageFee = usage * 120.0;
+            } else if (usage <= 400) {
+                baseFee = 1600;
+                usageFee = (200 * 120.0) + ((usage - 200) * 214.6);
+            } else {
+                baseFee = 7300;
+                usageFee = (200 * 120.0) + (200 * 214.6) + ((usage - 400) * 307.3);
+            }
 
-if __name__ == "__main__":
-    generate()
+            // 2. 기타 요금 (기후환경 9원/kWh, 연료비조정 +5원/kWh 가정)
+            const climateFee = usage * 9;
+            const fuelAdjFee = usage * 5;
+            const extraFee = climateFee + fuelAdjFee;
 
+            // 3. 공급가액 합계
+            const supplyPrice = baseFee + usageFee + extraFee;
 
+            // 4. 부가세 (10%) 및 전력산업기반기금 (3.7%)
+            const vat = Math.round(supplyPrice * 0.1);
+            const fund = Math.floor(supplyPrice * 0.037 / 10) * 10; // 10원 미만 절사
+
+            // 5. 최종 합계 (원단위 절사)
+            const total = Math.floor((supplyPrice + vat + fund) / 10) * 10;
+
+            // 결과 화면 업데이트
+            document.getElementById('resultArea').classList.remove('hidden');
+            document.getElementById('baseFee').innerText = baseFee.toLocaleString() + '원';
+            document.getElementById('usageFee').innerText = Math.round(usageFee).toLocaleString() + '원';
+            document.getElementById('extraFee').innerText = extraFee.toLocaleString() + '원';
+            document.getElementById('taxFee').innerText = (vat + fund).toLocaleString() + '원';
+            document.getElementById('totalFee').innerText = total.toLocaleString() + '원';
+        }
+    </script>
+</body>
+</html>
