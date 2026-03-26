@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>전기 전문가용 통합 계산기</title>
+    <title>전문가용 통합 전기 계산기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -25,55 +25,69 @@
             document.documentElement.classList.remove('dark');
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Pretendard', sans-serif; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .tab-content { display: none; transform: translateY(5px); opacity: 0; transition: all 0.3s ease; }
+        .tab-content.active { display: block; transform: translateY(0); opacity: 1; }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 p-4 md:p-8 transition-colors duration-200">
+<body class="bg-gray-50 dark:bg-slate-950 p-4 md:p-8 transition-colors duration-300 min-h-screen text-gray-800 dark:text-gray-100">
 
-    <div class="max-w-2xl mx-auto space-y-8">
-        
-        <!-- 우측 상단 다크모드/라이트모드 토글 버튼 -->
-        <div class="flex justify-end">
+    <div class="max-w-3xl mx-auto space-y-8 pb-20">
+        <!-- Header & Theme Toggle -->
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                ⚡ 통합 전기 계산기
+            </h1>
             <button onclick="toggleDarkMode()" id="themeToggle" 
-                class="px-5 py-3 bg-white dark:bg-slate-800 rounded-full shadow-md text-gray-800 dark:text-gray-100 font-semibold hover:scale-105 hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700 outline-none flex items-center gap-2">
-                <!-- Javascript를 통해 내용이 채워집니다 -->
+                class="px-5 py-2.5 bg-white dark:bg-slate-800 rounded-full shadow border border-gray-200 dark:border-slate-700 font-semibold hover:shadow-md transition-all outline-none flex items-center gap-2">
+            </button>
+        </div>
+
+        <!-- 탭 네비게이션 -->
+        <div class="flex gap-2 p-1.5 bg-gray-200/50 dark:bg-slate-800/50 rounded-2xl overflow-x-auto overflow-y-hidden">
+            <button onclick="switchTab('tab-bill', this)" class="tab-btn active flex-1 min-w-[120px] py-3 px-4 rounded-xl font-semibold transition-all bg-white dark:bg-slate-700 shadow text-blue-600 dark:text-blue-400">
+                요금 계산
+            </button>
+            <button onclick="switchTab('tab-ocr', this)" class="tab-btn flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium transition-all text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                OCR 정정
+            </button>
+            <button onclick="switchTab('tab-vd', this)" class="tab-btn flex-1 min-w-[150px] py-3 px-4 rounded-xl font-medium transition-all text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                전압강하 / 전선굵기
             </button>
         </div>
 
         <!-- SECTION 1: 전기 요금 계산기 -->
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors">
-            <div class="bg-blue-600 dark:bg-blue-700 p-6 transition-colors">
-                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                    <span>⚡</span> 이번 달 전기 요금 계산기
-                </h2>
+        <div id="tab-bill" class="tab-content active bg-white dark:bg-slate-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-800">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">이번 달 전기 요금 계산</h2>
             </div>
             
-            <div class="p-6 space-y-6">
+            <div class="p-6 md:p-8 space-y-6">
                 <div>
-                    <label class="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">당월 사용량 (kWh)</label>
+                    <label class="block text-lg font-semibold mb-2">당월 사용량 (kWh)</label>
                     <input type="number" id="usageInput" placeholder="예: 350" 
-                        class="w-full px-5 py-4 text-2xl border-2 border-blue-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-xl focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-500/40 focus:border-blue-500 dark:focus:border-blue-400 outline-none transition-all">
+                        class="w-full px-5 py-4 text-2xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
                 </div>
 
                 <button onclick="calculateBill()" 
-                    class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xl font-bold py-5 rounded-xl transition-all active:scale-95 shadow-lg">
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold py-5 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-500/30">
                     요금 계산 실행
                 </button>
 
-                <div id="billResult" class="hidden bg-blue-50 dark:bg-slate-700/50 rounded-2xl p-6 space-y-4 border border-blue-100 dark:border-slate-600 transition-colors">
+                <div id="billResult" class="hidden bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 space-y-4 border border-blue-100 dark:border-blue-800 flex-col">
                     <div class="flex justify-between text-gray-600 dark:text-gray-300 text-lg">
                         <span>기본요금 / 전력량요금</span>
-                        <span id="baseUsageFee" class="font-medium text-gray-800 dark:text-gray-100">0원</span>
+                        <span id="baseUsageFee" class="font-medium">0원</span>
                     </div>
                     <div class="flex justify-between text-gray-600 dark:text-gray-300 text-lg">
                         <span>기후/연료비 조정액</span>
-                        <span id="extraFee" class="font-medium text-gray-800 dark:text-gray-100">0원</span>
+                        <span id="extraFee" class="font-medium">0원</span>
                     </div>
-                    <div class="flex justify-between items-center pt-4 border-t border-blue-200 dark:border-slate-600">
-                        <span class="text-xl font-bold text-gray-800 dark:text-white">최종 청구 금액</span>
+                    <div class="flex justify-between items-center pt-4 border-t border-blue-200 dark:border-blue-800">
+                        <span class="text-xl font-bold">최종 청구 금액</span>
                         <span id="totalBill" class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">0원</span>
                     </div>
                 </div>
@@ -81,108 +95,268 @@
         </div>
 
         <!-- SECTION 2: OCR 정정치 계산기 -->
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors">
-            <div class="bg-emerald-600 dark:bg-emerald-700 p-6 transition-colors">
-                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                    <span>🛠️</span> OCR(과전류계전기) 정정치 계산기
-                </h2>
+        <div id="tab-ocr" class="tab-content bg-white dark:bg-slate-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-800">
+            <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">OCR(과전류계전기) 정정치 계산</h2>
             </div>
             
-            <div class="p-6 space-y-6">
+            <div class="p-6 md:p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- 계약전력 -->
                     <div>
-                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">계약전력 (kW)</label>
-                        <input type="number" id="contractPower" placeholder="예: 500" 
-                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-xl focus:border-emerald-500 dark:focus:border-emerald-400 outline-none transition-colors">
+                        <label class="block text-lg font-semibold mb-2">계약전력 (kW)</label>
+                        <input type="number" id="contractPower" placeholder="예: 500" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-emerald-500 outline-none transition-colors">
                     </div>
-                    <!-- 정격전압 -->
                     <div>
-                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">정격전압 (V)</label>
-                        <select id="voltage" onchange="toggleVoltageInput()"
-                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-xl focus:border-emerald-500 dark:focus:border-emerald-400 outline-none transition-colors">
+                        <label class="block text-lg font-semibold mb-2">정격전압 (V)</label>
+                        <select id="voltage" onchange="toggleVoltageInput()" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-emerald-500 outline-none transition-colors">
                             <option value="22900">22,900 V</option>
                             <option value="6600">6,600 V</option>
                             <option value="3300">3,300 V</option>
                             <option value="380">380 V</option>
                             <option value="custom">직접 입력</option>
                         </select>
-                        <input type="number" id="customVoltage" placeholder="전압 직접 입력" 
-                            class="hidden w-full mt-2 px-5 py-4 text-xl border-2 border-orange-200 dark:border-orange-500/50 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-xl outline-none transition-colors">
-                    </div>
-                    <!-- CT비 -->
-                    <div>
-                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">CT비 (1차측)</label>
-                        <input type="number" id="ctPrimary" placeholder="예: 100" 
-                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-xl focus:border-emerald-500 dark:focus:border-emerald-400 outline-none transition-colors">
+                        <input type="number" id="customVoltage" placeholder="전압 직접 입력" class="hidden w-full mt-2 px-5 py-4 text-xl border-2 border-orange-200 dark:border-orange-500/50 bg-white dark:bg-slate-700 rounded-xl outline-none">
                     </div>
                     <div>
-                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">CT비 (2차측)</label>
-                        <input type="number" id="ctSecondary" value="5" 
-                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-xl focus:border-emerald-500 dark:focus:border-emerald-400 outline-none transition-colors">
+                        <label class="block text-lg font-semibold mb-2">CT비 (1차측)</label>
+                        <input type="number" id="ctPrimary" placeholder="예: 100" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-emerald-500 outline-none transition-colors">
                     </div>
-                    <!-- 과부하 계수 -->
+                    <div>
+                        <label class="block text-lg font-semibold mb-2">CT비 (2차측)</label>
+                        <input type="number" id="ctSecondary" value="5" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-emerald-500 outline-none transition-colors">
+                    </div>
                     <div class="md:col-span-2">
-                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">과부하 계수 (%)</label>
-                        <input type="number" id="overloadFactor" value="150" 
-                            class="w-full px-5 py-4 text-xl border-2 border-emerald-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white rounded-xl focus:border-emerald-500 dark:focus:border-emerald-400 outline-none transition-colors">
+                        <label class="block text-lg font-semibold mb-2">과부하 계수 (%)</label>
+                        <input type="number" id="overloadFactor" value="150" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-emerald-500 outline-none transition-colors">
                     </div>
                 </div>
 
-                <button onclick="calculateOCR()" 
-                    class="w-full bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-xl font-bold py-5 rounded-xl transition-all active:scale-95 shadow-lg">
+                <button onclick="calculateOCR()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xl font-bold py-5 rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-500/30">
                     OCR 정정치 계산 실행
                 </button>
 
-                <div id="ocrResult" class="hidden bg-emerald-50 dark:bg-slate-700/50 rounded-2xl p-6 space-y-4 border border-emerald-100 dark:border-slate-600 transition-colors">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300 text-lg">계산된 부하전류 (I)</span>
-                        <span id="loadCurrent" class="text-2xl font-bold text-gray-800 dark:text-gray-100">0.00 A</span>
+                <div id="ocrResult" class="hidden flex-col bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-6 space-y-4 border border-emerald-100 dark:border-emerald-800">
+                    <div class="flex justify-between items-center text-lg">
+                        <span class="text-gray-600 dark:text-gray-300">계산된 부하전류 (I)</span>
+                        <span id="loadCurrent" class="font-bold">0.00 A</span>
                     </div>
-                    <div class="flex justify-between items-center pt-4 border-t border-emerald-200 dark:border-slate-600">
-                        <span class="text-xl font-bold text-gray-800 dark:text-white">권장 OCR Tap 설정치</span>
+                    <div class="flex justify-between items-center pt-4 border-t border-emerald-200 dark:border-emerald-800">
+                        <span class="text-xl font-bold">권장 OCR Tap 설정치</span>
                         <span id="ocrTap" class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">0.00 A</span>
                     </div>
-                    <p class="text-sm text-emerald-700 dark:text-emerald-400 text-center mt-2 font-medium">※ 실제 설정 시 가장 가까운 상위 탭을 선택하십시오.</p>
                 </div>
             </div>
         </div>
 
-        <p class="text-center text-gray-400 dark:text-slate-500 text-sm pb-10 transition-colors">
-            Designed by World-Class Fullstack Automation Expert
-        </p>
+        <!-- SECTION 3: 전압강하 / 전선굵기 계산기 -->
+        <div id="tab-vd" class="tab-content bg-white dark:bg-slate-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-slate-800">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 p-6">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">전압강하 / 전선굵기 계산</h2>
+            </div>
+            
+            <div class="p-6 md:p-8 space-y-8">
+                <!-- 계산 모드 선택 -->
+                <div class="flex p-1 bg-gray-100 dark:bg-slate-800 rounded-xl">
+                    <button onclick="setVDMode('e')" id="mode-e" class="flex-1 py-3 text-lg font-semibold rounded-lg bg-white dark:bg-slate-700 shadow text-purple-600 dark:text-purple-400 transition-all">
+                        전압강하 (e) 구하기
+                    </button>
+                    <button onclick="setVDMode('A')" id="mode-A" class="flex-1 py-3 text-lg font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-all">
+                        전선굵기 (A) 구하기
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-lg font-semibold mb-2">배전 방식 선택</label>
+                        <select id="phaseSystem" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-purple-500 outline-none transition-colors">
+                            <option value="35.6">단상 2선식 (K=35.6)</option>
+                            <option value="30.8">3상 3선식 (K=30.8)</option>
+                            <option value="17.8">3상 4선식 / 단상 3선식 (K=17.8)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-lg font-semibold mb-2">거리 L (m)</label>
+                        <input type="number" id="vdDistance" placeholder="예: 100" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-purple-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-lg font-semibold mb-2">부하전류 I (A)</label>
+                        <input type="number" id="vdCurrent" placeholder="예: 50" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-purple-500 outline-none transition-colors">
+                    </div>
+
+                    <!-- 동적 입력 필드 -->
+                    <div id="field-area" class="md:col-span-2">
+                        <label class="block text-lg font-semibold mb-2">전선 단면적 A (㎟)</label>
+                        <input type="number" id="vdArea" placeholder="예: 16" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-purple-500 outline-none transition-colors">
+                    </div>
+                    <div id="field-drop" class="md:col-span-2 hidden">
+                        <label class="block text-lg font-semibold mb-2">허용 전압강하 e (V)</label>
+                        <input type="number" id="vdDrop" placeholder="예: 5" class="w-full px-5 py-4 text-xl border-2 border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl focus:border-purple-500 outline-none transition-colors">
+                    </div>
+                </div>
+
+                <button onclick="calculateVD()" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xl font-bold py-5 rounded-xl transition-all active:scale-95 shadow-lg shadow-purple-500/30">
+                    계산 실행
+                </button>
+
+                <!-- 결과 표시 영역 -->
+                <div id="vdResult" class="hidden flex-col bg-purple-50 dark:bg-purple-900/20 rounded-2xl p-6 space-y-4 border border-purple-100 dark:border-purple-800">
+                    <div class="flex flex-col gap-2">
+                        <span id="vdResultLabel" class="text-gray-600 dark:text-gray-300 text-lg">계산 결과</span>
+                        <div class="flex justify-between items-center text-xl font-bold pt-2 border-t border-purple-200 dark:border-purple-800 mt-2">
+                            <span id="vdResultTitle">결과값</span>
+                            <span id="vdResultValue" class="text-3xl font-extrabold text-purple-600 dark:text-purple-400">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 최근 계산 기록 -->
+        <div class="mt-8">
+            <div class="flex justify-between items-end mb-4 px-2">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">🕰️ 최근 계산 기록</h3>
+                <button onclick="clearHistory()" class="text-sm font-semibold text-red-500 hover:text-red-600 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg transition-colors border border-red-100 dark:border-red-900/50">기록 삭제</button>
+            </div>
+            <div id="historyList" class="space-y-3">
+                <!-- 기록 카드들이 JS에 의해 채워집니다 -->
+            </div>
+        </div>
+
     </div>
 
+    <!-- 스크립트 작성 -->
     <script>
-        // 초기 로드 시 버튼 텍스트 설정
+        // 초기 로드 시 버튼 텍스트 설정 및 테마/히스토리 로드
         document.addEventListener("DOMContentLoaded", () => {
-            const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('themeToggle').innerHTML = isDark ? '☀️ 라이트모드' : '🌙 다크모드';
+            updateThemeToggleHTML();
+            renderHistory();
         });
 
-        // 다크모드 토글 로직
-        function toggleDarkMode() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            document.getElementById('themeToggle').innerHTML = isDark ? '☀️ 라이트모드' : '🌙 다크모드';
-            // 로컬 스토리지에 사용자 설정 저장
-            if (isDark) {
-                localStorage.setItem('theme', 'dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-            }
+        function updateThemeToggleHTML() {
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('themeToggle').innerHTML = isDark 
+                ? '☀️ <span class="hidden sm:inline">라이트모드</span>' 
+                : '🌙 <span class="hidden sm:inline">다크모드</span>';
         }
 
-        // 전압 직접 입력 필드 토글
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            updateThemeToggleHTML();
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // 탭 전환 로직
+        function switchTab(tabId, btnElem) {
+            // 안 보이는 탭 컨텐츠는 hidden 처리하지 않고 display none(위 style 참조)
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.className = 'tab-btn flex-1 py-3 px-4 rounded-xl font-medium transition-all text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 min-w-[120px]';
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            
+            let activeClass = 'bg-white dark:bg-slate-700 shadow font-semibold ';
+            if(tabId === 'tab-bill') activeClass += 'text-blue-600 dark:text-blue-400';
+            else if(tabId === 'tab-ocr') activeClass += 'text-emerald-600 dark:text-emerald-400';
+            else if(tabId === 'tab-vd') {
+                activeClass += 'text-purple-600 dark:text-purple-400';
+                btnElem.style.minWidth = '150px';
+            }
+
+            btnElem.className = `tab-btn active flex-1 py-3 px-4 rounded-xl transition-all min-w-[120px] ${activeClass}`;
+            
+            // 탭 변경 시마다 히스토리 다시 렌더 (UI 정렬 용도)
+            renderHistory();
+        }
+
         function toggleVoltageInput() {
             const select = document.getElementById('voltage');
             const customInput = document.getElementById('customVoltage');
             customInput.classList.toggle('hidden', select.value !== 'custom');
         }
 
-        // 1. 전기 요금 계산 로직
+        let currentVDMode = 'e'; // 'e' or 'A'
+        function setVDMode(mode) {
+            currentVDMode = mode;
+            const btnE = document.getElementById('mode-e');
+            const btnA = document.getElementById('mode-A');
+            const fieldArea = document.getElementById('field-area');
+            const fieldDrop = document.getElementById('field-drop');
+
+            const activeClass = 'flex-1 py-3 text-lg font-semibold rounded-lg bg-white dark:bg-slate-700 shadow text-purple-600 dark:text-purple-400 transition-all';
+            const inactiveClass = 'flex-1 py-3 text-lg font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-all';
+
+            if (mode === 'e') {
+                btnE.className = activeClass;
+                btnA.className = inactiveClass;
+                fieldArea.classList.remove('hidden');
+                fieldDrop.classList.add('hidden');
+            } else {
+                btnA.className = activeClass;
+                btnE.className = inactiveClass;
+                fieldArea.classList.add('hidden');
+                fieldDrop.classList.remove('hidden');
+            }
+            document.getElementById('vdResult').classList.remove('flex');
+            document.getElementById('vdResult').classList.add('hidden');
+        }
+
+        function saveHistory(type, details, resultText) {
+            const history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            
+            history.unshift({ id: Date.now(), type, details, resultText, time: timeStr });
+            if (history.length > 30) history.pop();
+            
+            localStorage.setItem('calcHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+            const container = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-gray-400 dark:text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-gray-200 dark:border-slate-700">기록된 계산 내역이 없습니다.</div>`;
+                return;
+            }
+
+            container.innerHTML = history.map(item => {
+                let tagColor = '';
+                if(item.type === '요금 계산') tagColor = 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300';
+                else if(item.type === 'OCR 정정') tagColor = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300';
+                else tagColor = 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300';
+
+                return `
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:shadow-md">
+                        <div class="flex flex-col gap-1.5">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs px-2.5 py-1 rounded-md font-bold ${tagColor}">${item.type}</span>
+                                <span class="text-xs font-semibold text-gray-400 dark:text-gray-500">${item.time}</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400 break-keep">${item.details}</span>
+                        </div>
+                        <div class="text-xl font-bold bg-gray-50 dark:bg-slate-700/50 px-4 py-2 rounded-xl text-gray-800 dark:text-gray-100 shrink-0 text-right">
+                            ${item.resultText}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function clearHistory() {
+            if(confirm('모든 계산 기록을 삭제하시겠습니까?')) {
+                localStorage.removeItem('calcHistory');
+                renderHistory();
+            }
+        }
+
+        // 1. 계산 로직
         function calculateBill() {
             const usage = parseFloat(document.getElementById('usageInput').value);
-            if (!usage || usage < 0) { alert("사용량을 입력해주세요."); return; }
+            if (!usage || usage < 0) { alert("올바른 사용량을 입력해주세요."); return; }
 
             let baseFee = 0, usageFee = 0;
             if (usage <= 200) { baseFee = 910; usageFee = usage * 120.0; }
@@ -197,12 +371,17 @@
             const total = Math.floor((supplyPrice + vat + fund) / 10) * 10;
 
             document.getElementById('billResult').classList.remove('hidden');
+            document.getElementById('billResult').classList.add('flex');
             document.getElementById('baseUsageFee').innerText = (baseFee + Math.round(usageFee)).toLocaleString() + '원';
             document.getElementById('extraFee').innerText = (climateFee + fuelAdjFee).toLocaleString() + '원';
-            document.getElementById('totalBill').innerText = total.toLocaleString() + '원';
+            
+            const totalStr = total.toLocaleString() + '원';
+            document.getElementById('totalBill').innerText = totalStr;
+
+            saveHistory('요금 계산', `사용량: ${usage} kWh`, totalStr);
         }
 
-        // 2. OCR 정정치 계산 로직
+        // 2. OCR 계산 로직
         function calculateOCR() {
             const P = parseFloat(document.getElementById('contractPower').value);
             const V_select = document.getElementById('voltage').value;
@@ -212,22 +391,72 @@
             const factor = parseFloat(document.getElementById('overloadFactor').value) / 100;
 
             if (!P || !V || !ctPri || !ctSec) {
-                alert("모든 항목을 정확히 입력해주세요.");
+                alert("항목을 모두 정확히 입력해주세요.");
                 return;
             }
 
-            // 부하전류 (I) = P / (root(3) * V) -> P가 kW이므로 1000 곱함
             const loadCurrent = (P * 1000) / (Math.sqrt(3) * V);
-            
-            // CT 2차측 전류 = 부하전류 * (CT 2차 / CT 1차)
             const ctSecondaryCurrent = loadCurrent * (ctSec / ctPri);
-            
-            // OCR Tap = CT 2차측 전류 * 과부하 계수
             const ocrTap = ctSecondaryCurrent * factor;
 
             document.getElementById('ocrResult').classList.remove('hidden');
+            document.getElementById('ocrResult').classList.add('flex');
             document.getElementById('loadCurrent').innerText = loadCurrent.toFixed(2) + ' A';
-            document.getElementById('ocrTap').innerText = ocrTap.toFixed(2) + ' A';
+            const resultStr = ocrTap.toFixed(2) + ' A';
+            document.getElementById('ocrTap').innerText = resultStr;
+
+            saveHistory('OCR 정정', `계약전력: ${P}kW, 전압: ${V}V, CT: ${ctPri}/${ctSec}, 과부하: ${factor*100}%`, resultStr);
+        }
+
+        // 3. 전압강하 계산 로직
+        function calculateVD() {
+            const K = parseFloat(document.getElementById('phaseSystem').value);
+            const L = parseFloat(document.getElementById('vdDistance').value);
+            const I = parseFloat(document.getElementById('vdCurrent').value);
+
+            if (!L || !I || L <= 0 || I <= 0) {
+                alert("거리(L)와 부하전류(I)를 올바르게 입력해주세요.");
+                return;
+            }
+
+            const resDiv = document.getElementById('vdResult');
+            const resTitle = document.getElementById('vdResultTitle');
+            const resVal = document.getElementById('vdResultValue');
+            const resLabel = document.getElementById('vdResultLabel');
+
+            let typeText = document.getElementById('phaseSystem').options[document.getElementById('phaseSystem').selectedIndex].text;
+            let typeName = typeText.split(' ')[0] + " " + typeText.split(' ')[1]; 
+            let details = `방식: ${typeName}, 거리: ${L}m, 전류: ${I}A`;
+
+            if (currentVDMode === 'e') {
+                const A = parseFloat(document.getElementById('vdArea').value);
+                if (!A || A <= 0) { alert("전선 단면적(A)을 올바르게 입력해주세요."); return; }
+                
+                const e = (K * L * I) / (1000 * A);
+                
+                resTitle.innerText = "계산된 전압강하 (e)";
+                resVal.innerText = e.toFixed(2) + " V";
+                resLabel.innerHTML = `입력 단면적: <strong class="text-purple-600 dark:text-purple-400">${A} ㎟</strong>`;
+                details += `, 단면적: ${A}㎟`;
+
+                saveHistory('전압강하', details, e.toFixed(2) + " V");
+
+            } else {
+                const e = parseFloat(document.getElementById('vdDrop').value);
+                if (!e || e <= 0) { alert("허용 전압강하(e)를 올바르게 입력해주세요."); return; }
+
+                const A = (K * L * I) / (1000 * e);
+                
+                resTitle.innerText = "권장 최소 단면적 (A)";
+                resVal.innerText = A.toFixed(2) + " ㎟";
+                resLabel.innerHTML = `허용 전압강하: <strong class="text-purple-600 dark:text-purple-400">${e} V</strong>`;
+                details += `, 허용강하: ${e}V`;
+
+                saveHistory('전선굵기', details, A.toFixed(2) + " ㎟");
+            }
+
+            resDiv.classList.remove('hidden');
+            resDiv.classList.add('flex');
         }
     </script>
 </body>
